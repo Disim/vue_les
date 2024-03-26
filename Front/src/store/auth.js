@@ -1,4 +1,5 @@
 import router from "@/router";
+import instance from "@/middlewares";
 
 const checkStatuses = (status) => {
     switch(status){
@@ -63,6 +64,26 @@ export default {
             localStorage.setItem('accessToken', result.accessToken)
             localStorage.setItem('refreshToken', result.refreshToken)
             localStorage.setItem('uid', result.uid)
+            router.push('/')
+        },
+
+        async changeAccess({ }) {
+            const response = await instance.post('/api/auth/change-access', {
+                headers: {
+                    'x-refresh-token': localStorage.getItem('refreshToken')
+                }
+            })
+            if (!checkStatuses(response.status)) return
+            const result = response.data
+            localStorage.setItem('accessToken', result.accessToken)
+            localStorage.setItem('refreshToken', result.refreshToken)
+        },
+
+        logout({commit}){
+            commit('setAuth', false)
+            localStorage.removeItem('uid')
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('refreshToken')
             router.push('/')
             return
         }

@@ -21,7 +21,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if(error.response.status == 401 && !error.config._retry) {
+        if(error.response.status === 401 && !error.config._retry) {
             await store.dispatch('auth/changeAccess')
             const _request = error.config
             _request._retry = true

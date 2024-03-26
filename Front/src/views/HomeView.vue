@@ -1,39 +1,51 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <div class="window">
-        <div class="window-label">
-          Количество лайков: {{ likes }}
+    <div class="card w-96 bg-base-100 shadow-xl">
+      <figure><img src="../assets/logo.png" alt="Vue" /></figure>
+      <div class="card-body">
+        <p>{{ text }}</p>
+        <p>Количество лайков: {{ likes }}</p>
+        <my-input v-model:value="password"/>
+        <div class="card-actions justify-end">
+          <my-button></my-button>
+          <button class="btn btn-primary" @click="addLike">Like</button>
+          <button class="btn btn-ghost" @click="addDislike">Dislike</button>
         </div>
-        <div class="btns">
-          <div class="btn like" @click="addLike">
-            <img src="../assets/like_739231.png" alt="like" width="32px">
-            Поставить лайк
-          </div>
-          <div class="btn dislike" @click="addDislike">
-            <img src="../assets/like_739231.png" alt="dislike" width="32px">
-            Поставить дизлайк
-          </div>
-        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import {mapActions} from "vuex";
+import MyButton from "@/components/ui/MyButton.vue";
+import MyInput from "@/components/ui/MyInput.vue";
 
 export default {
   name: 'HomeView',
   data() {
     return {
-      likes: 0
+      likes: 0,
+      text: '',
+      uid: '',
     }
   },
   methods: {
+    ...mapActions({
+      updateLikes: 'user/updateLikes',
+      getUserByUid: "user/getUserByUid",
+    }),
     addLike() {
       this.likes += 1
+      if(this.uid){
+        this.updateLikes({likes: this.likes})
+      }
     },
     addDislike() {
       this.likes -= 1
+      if(this.uid){
+        this.updateLikes({likes: this.likes})
+      }
     },
   },
   watch: {
@@ -43,8 +55,21 @@ export default {
       }
     }
   },
+  async mounted() {
+    this.uid = localStorage.getItem('uid')
+    if(this.uid) {
+      await this.getUserByUid()
+      this.likes = this.$store.state.user.user?.likes || 0
+      this.text = `Вы авторизованы как ${this.uid}`;
+    }
+    else{
+      this.text = `Вы не авторизованы, счетчик обнулен`;
+    }
+  },
   components: {
-    
+    MyInput,
+    MyButton
+
   }
 }
 </script>
